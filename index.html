@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Connect - University Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       Navigation Bar
+       ========================================================================== -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand-logo" onclick="navigateTo('home')">
+        <span>Campus Connect</span>
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a class="nav-link active" data-view="home">Home</a></li>
+          <li><a class="nav-link" data-view="events">Events</a></li>
+          <li><a class="nav-link" data-view="groups">Groups</a></li>
+          <li><a class="nav-link" data-view="profile">Profile</a></li>
+          <li><a class="nav-link" data-view="mentorship" id="navLinkMentorship">Mentorship</a></li>
+          <li><a class="nav-link" data-view="admin" id="navLinkAdmin" style="display: none; color: #b45309;">Admin Panel</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Quick Role Switcher for SE Lab Evaluation -->
+        <div class="role-switcher-wrap" title="Quick switch active user/role for demo & testing">
+          <span>Role:</span>
+          <select id="navRoleSwitcher" class="role-select"></select>
+        </div>
+
+        <button class="btn-logout" onclick="handleLogout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Main Application Views
+       ========================================================================== -->
+  <main class="main-content">
+
+    <!-- VIEW 1: HOME & FEED -->
+    <section id="view-home" class="view-section active">
+      <div class="feed-layout">
+        
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+          <!-- User Profile Card -->
+          <div class="profile-card">
+            <div class="profile-avatar-circle" id="sideProfileAvatar">AR</div>
+            <h3 id="sideProfileName">Alex Rivera</h3>
+            <div class="dept-text" id="sideProfileDept">Computer Science '25</div>
+
+            <div class="profile-stats-row">
+              <div class="stat-item" style="cursor: pointer;" onclick="navigateTo('profile')">
+                <span class="stat-num" id="sideProfileConns">42</span>
+                <span class="stat-lbl">Connections</span>
+              </div>
+              <div class="stat-item" style="cursor: pointer;" onclick="navigateTo('profile')">
+                <span class="stat-num" id="sideProfilePosts">15</span>
+                <span class="stat-lbl">Posts</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Events Widget -->
+          <div class="widget-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <h4 class="widget-title" style="margin-bottom: 0;">Upcoming Events</h4>
+              <a onclick="navigateTo('events')" style="font-size: 0.8rem; color: var(--primary); font-weight: 600; cursor: pointer;">View all</a>
+            </div>
+            <div class="widget-events-list" id="sideEventsList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Quick Campus Link Card -->
+          <div class="widget-card" style="background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);">
+            <h4 class="widget-title">SE Lab Portal</h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px;">
+              Designed for Student, Teacher &amp; Admin collaboration across college labs and departments.
+            </p>
+            <button class="btn-secondary" style="width: 100%; font-size: 0.82rem;" onclick="navigateTo('mentorship')">
+              Mentorship &amp; Lab Inquiries →
+            </button>
+          </div>
+        </aside>
+
+        <!-- Right Feed Area -->
+        <div class="feed-content">
+          <!-- Post Creator Box -->
+          <div class="create-post-card">
+            <textarea id="postInput" class="post-input" placeholder="What's happening on campus?"></textarea>
+            
+            <!-- Optional Photo preview -->
+            <div id="postPhotoPreview"></div>
+            <input type="file" id="postPhotoInput" accept="image/*" style="display: none;" onchange="handlePhotoSelected(event)">
+
+            <div class="post-actions-bar">
+              <div class="post-tools">
+                <button type="button" class="btn-tool" onclick="handleAttachPhoto()">
+                  <span>📷</span>
+                  <span>Add Photo</span>
+                </button>
+                <div id="facultyNoticeWrap" class="faculty-post-check" style="display: none;">
+                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="checkbox" id="postAsNotice">
+                    <span>Official Notice</span>
+                  </label>
+                </div>
+              </div>
+              <button class="btn-primary" onclick="handleCreatePost()">Post</button>
+            </div>
+          </div>
+
+          <!-- Feed Posts Stream -->
+          <div class="posts-stream" id="postsStream">
+            <!-- Dynamically populated from cc_posts -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 2: COLLEGE EVENTS -->
+    <section id="view-events" class="view-section">
+      <div class="view-header">
+        <div class="header-with-action">
+          <div>
+            <div class="tag-label">Around Campus</div>
+            <h2 class="page-title">College Events</h2>
+            <p class="page-subtitle">Meet, learn, and celebrate together</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button id="btnMyEventRegistrations" class="btn-secondary" onclick="openMyRegistrationsModal()" style="display: none;">
+              📋 My Event Applications
+            </button>
+            <button id="btnOpenCreateEvent" class="btn-primary" onclick="openModal('modalCreateEvent')" style="display: none;">
+              ➕ Host New Event
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Events -->
+      <div class="events-section-group">
+        <div class="events-category-heading">
+          <span class="status-dot dot-upcoming"></span>
+          <span>Upcoming</span>
+        </div>
+        <div class="events-grid" id="eventsGridUpcoming"></div>
+      </div>
+
+      <!-- Ongoing Events -->
+      <div class="events-section-group">
+        <div class="events-category-heading">
+          <span class="status-dot dot-ongoing"></span>
+          <span>Ongoing</span>
+        </div>
+        <div class="events-grid" id="eventsGridOngoing"></div>
+      </div>
+
+      <!-- Completed Events -->
+      <div class="events-section-group">
+        <div class="events-category-heading">
+          <span class="status-dot dot-completed"></span>
+          <span>Completed</span>
+        </div>
+        <div class="events-grid" id="eventsGridCompleted"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: CLUBS & GROUPS -->
+    <section id="view-groups" class="view-section">
+      <div class="view-header">
+        <div class="header-with-action">
+          <div>
+            <div class="tag-label">Find Your Community</div>
+            <h2 class="page-title">Clubs &amp; Groups</h2>
+            <p class="page-subtitle">Explore student-led campus communities</p>
+          </div>
+          <button id="btnOpenCreateClub" class="btn-primary" onclick="openModal('modalCreateClub')" style="display: none;">
+            ➕ Register New Club
+          </button>
+        </div>
+      </div>
+
+      <div class="groups-grid" id="groupsGrid">
+        <!-- Dynamically populated from cc_clubs -->
+      </div>
+    </section>
+
+    <!-- VIEW 4: PROFILE & CONNECTIONS -->
+    <section id="view-profile" class="view-section">
+      <div class="profile-view-wrap">
+        
+        <!-- Profile Hero Card -->
+        <div class="profile-hero-card">
+          <div class="profile-hero-main">
+            <div class="profile-hero-avatar" id="profileHeroAvatar">AR</div>
+            <div class="profile-hero-details">
+              <h2>
+                <span id="profileHeroName">Alex Rivera</span>
+                <span id="profileHeroBadge" class="author-badge student">Student</span>
+              </h2>
+              <div class="profile-hero-dept" id="profileHeroDept">Computer Science &amp; Engineering</div>
+              <div class="profile-hero-roll" id="profileHeroRoll">ID: CS21B042</div>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="openEditProfileModal()">Edit Profile</button>
+        </div>
+
+        <!-- Subtabs Navigation -->
+        <div class="profile-subtabs-nav">
+          <div class="subtab-link active" data-subtab="connections">Connections</div>
+          <div class="subtab-link" data-subtab="about">About</div>
+          <div class="subtab-link" data-subtab="myposts">My Posts</div>
+        </div>
+
+        <!-- SUBTAB 1: CONNECTIONS -->
+        <div class="subtab-content active" id="subtab-connections">
+          <div class="connections-section-card">
+            <div class="connections-header">
+              <h3>Campus Connections</h3>
+              <p>Meet students, faculty, and departments across the college.</p>
+            </div>
+
+            <div class="connections-filter-bar">
+              <input type="text" id="connectionsSearchInput" class="connections-search" placeholder="Search by name, department, or faculty advisor..." oninput="handleConnectionsSearch(event)">
+            </div>
+
+            <div class="connections-list" id="connectionsList">
+              <!-- Dynamically populated with Jane Doe, John Smith, Dr. Meera Kapoor, etc. -->
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBTAB 2: ABOUT -->
+        <div class="subtab-content" id="subtab-about">
+          <div class="about-grid">
+            <div class="about-card">
+              <h4>Academic Bio</h4>
+              <p class="about-bio" id="aboutBio">Loading bio...</p>
+
+              <h4>Skills &amp; Interests</h4>
+              <div class="skills-wrap" id="aboutSkills">
+                <!-- Skill tags -->
+              </div>
+            </div>
+
+            <div class="about-card">
+              <h4>Academic Info</h4>
+              <div class="info-item">
+                <span class="info-lbl">College Email</span>
+                <span class="info-val" id="aboutEmail">student@campus.edu</span>
+              </div>
+              <div class="info-item">
+                <span class="info-lbl">Department</span>
+                <span class="info-val" id="aboutDept">CSE</span>
+              </div>
+              <div class="info-item">
+                <span class="info-lbl">Faculty Advisor</span>
+                <span class="info-val" id="aboutAdvisor">Dr. Meera Kapoor</span>
+              </div>
+              <div class="info-item">
+                <span class="info-lbl">Roll / ID Number</span>
+                <span class="info-val" id="aboutRoll">CS21B042</span>
+              </div>
+              <div class="info-item">
+                <span class="info-lbl">GitHub</span>
+                <span class="info-val" id="aboutGithub">github.com/student</span>
+              </div>
+              <div class="info-item">
+                <span class="info-lbl">LinkedIn</span>
+                <span class="info-val" id="aboutLinkedin">linkedin.com/in/student</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBTAB 3: MY POSTS -->
+        <div class="subtab-content" id="subtab-myposts">
+          <div class="connections-section-card">
+            <div class="connections-header">
+              <h3>Your Campus Feed History</h3>
+              <p>Updates and discussions posted by your account.</p>
+            </div>
+            <div id="myPostsList"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 5: FACULTY MENTORSHIP & INQUIRIES -->
+    <section id="view-mentorship" class="view-section">
+      <div id="mentorshipContent">
+        <!-- Rendered dynamically depending on whether currentUser is student or faculty -->
+      </div>
+    </section>
+
+    <!-- VIEW 6: ADMIN MANAGEMENT PANEL -->
+    <section id="view-admin" class="view-section">
+      <div class="view-header">
+        <div class="tag-label">System Administration</div>
+        <h2 class="page-title">Campus Connect Admin Dashboard</h2>
+        <p class="page-subtitle">Manage campus members, moderation, and university portal settings</p>
+      </div>
+
+      <!-- Metrics Row -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card">
+          <span class="admin-stat-num" id="adminStatStudents">0</span>
+          <span class="admin-stat-lbl">Registered Students</span>
+        </div>
+        <div class="admin-stat-card">
+          <span class="admin-stat-num" id="adminStatFaculty">0</span>
+          <span class="admin-stat-lbl">Faculty Members</span>
+        </div>
+        <div class="admin-stat-card">
+          <span class="admin-stat-num" id="adminStatEvents">0</span>
+          <span class="admin-stat-lbl">Active Events</span>
+        </div>
+        <div class="admin-stat-card">
+          <span class="admin-stat-num" id="adminStatClubs">0</span>
+          <span class="admin-stat-lbl">Clubs &amp; Societies</span>
+        </div>
+        <div class="admin-stat-card">
+          <span class="admin-stat-num" id="adminStatPosts">0</span>
+          <span class="admin-stat-lbl">Feed Interactions</span>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="admin-table-card">
+        <div class="table-header-row">
+          <h3>User Directory &amp; Access Control</h3>
+          <button class="btn-primary" onclick="openModal('modalAdminAddUser')">➕ Add Member</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Member Name &amp; ID</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTableBody">
+              <!-- Populated via js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Event Registrations & Approvals Table -->
+      <div class="admin-table-card">
+        <div class="table-header-row">
+          <div>
+            <h3>Campus Event Applications &amp; Approvals</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Review student registration requests, approve or reject RSVPs across all campus events</p>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Event Name</th>
+                <th>Student Applicant</th>
+                <th>Roll No</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Review Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminEventRegsTableBody">
+              <!-- Populated via js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       Modals
+       ========================================================================== -->
+
+  <!-- Modal: Edit Profile -->
+  <div class="modal-overlay" id="modalEditProfile">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Campus Profile</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalEditProfile')">✕</button>
+      </div>
+      <form onsubmit="handleEditProfileSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Avatar Badge Color</label>
+            <select id="editProfileAvatarBg" class="form-select">
+              <option value="#4f46e5">Indigo Violet (#4f46e5)</option>
+              <option value="#10b981">Emerald Green (#10b981)</option>
+              <option value="#6366f1">Royal Blue (#6366f1)</option>
+              <option value="#059669">Forest Green (#059669)</option>
+              <option value="#b45309">Warm Amber (#b45309)</option>
+              <option value="#ef4444">Crimson Red (#ef4444)</option>
+              <option value="#0284c7">Sky Blue (#0284c7)</option>
+              <option value="#8b5cf6">Purple (#8b5cf6)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="editProfileName" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department / Branch</label>
+            <input type="text" id="editProfileDept" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Faculty Advisor</label>
+            <input type="text" id="editProfileAdvisor" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bio</label>
+            <textarea id="editProfileBio" class="form-textarea" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Skills (comma separated)</label>
+            <input type="text" id="editProfileSkills" class="form-input" placeholder="e.g. Python, React, Java">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GitHub URL</label>
+            <input type="text" id="editProfileGithub" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">LinkedIn URL</label>
+            <input type="text" id="editProfileLinkedin" class="form-input">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalEditProfile')">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Create Event -->
+  <div class="modal-overlay" id="modalCreateEvent">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Host New College Event</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalCreateEvent')">✕</button>
+      </div>
+      <form onsubmit="handleCreateEventSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Event Title</label>
+            <input type="text" id="evtInputTitle" class="form-input" placeholder="e.g. National Robotics Symposium" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <input type="text" id="evtInputCategory" class="form-input" placeholder="e.g. Competition, Workshop, Cultural" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="evtInputStatus" class="form-select">
+              <option value="Upcoming">Upcoming</option>
+              <option value="Ongoing">Ongoing</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date Badge (e.g. NOV 12)</label>
+            <input type="text" id="evtInputDate" class="form-input" placeholder="NOV 12" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time &amp; Duration</label>
+            <input type="text" id="evtInputTime" class="form-input" placeholder="e.g. 10:00 AM - 3:00 PM">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Venue / Location</label>
+            <input type="text" id="evtInputLocation" class="form-input" placeholder="e.g. Tech Auditorium" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea id="evtInputDesc" class="form-textarea" rows="3" placeholder="Brief details about the event..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalCreateEvent')">Cancel</button>
+          <button type="submit" class="btn-primary">Publish Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Create Club -->
+  <div class="modal-overlay" id="modalCreateClub">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Register New Club or Society</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalCreateClub')">✕</button>
+      </div>
+      <form onsubmit="handleCreateClubSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Domain Tag (e.g. TECHNOLOGY, ARTS)</label>
+            <input type="text" id="clubInputTag" class="form-input" placeholder="e.g. AI &amp; ROBOTICS" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Club Name</label>
+            <input type="text" id="clubInputName" class="form-input" placeholder="e.g. Open Source Developers Guild" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description &amp; Mission</label>
+            <textarea id="clubInputDesc" class="form-textarea" rows="3" placeholder="What does this club do?" required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Regular Meeting Schedule</label>
+            <input type="text" id="clubInputTime" class="form-input" placeholder="e.g. Every Friday, 4:00 PM">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Meeting Room / Lab</label>
+            <input type="text" id="clubInputRoom" class="form-input" placeholder="e.g. CS Lab 2">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalCreateClub')">Cancel</button>
+          <button type="submit" class="btn-primary">Create Club</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Mentorship Inquiry -->
+  <div class="modal-overlay" id="modalMentorshipInquiry">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Request Faculty Guidance</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalMentorshipInquiry')">✕</button>
+      </div>
+      <form onsubmit="handleMentorshipInquirySubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Select Faculty Member</label>
+            <select id="inquiryFacultySelect" class="form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input type="text" id="inquirySubject" class="form-input" placeholder="e.g. SE Lab Project Review &amp; Mentoring" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Inquiry Details</label>
+            <textarea id="inquiryMessage" class="form-textarea" rows="4" placeholder="Detail your project question, thesis inquiry, or appointment request..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalMentorshipInquiry')">Cancel</button>
+          <button type="submit" class="btn-primary">Submit Inquiry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Admin Add User -->
+  <div class="modal-overlay" id="modalAdminAddUser">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Campus Member Account</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAdminAddUser')">✕</button>
+      </div>
+      <form onsubmit="handleAdminAddUserSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="adminNewName" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">College Email</label>
+            <input type="email" id="adminNewEmail" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <select id="adminNewRole" class="form-select">
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department</label>
+            <input type="text" id="adminNewDept" class="form-input" placeholder="e.g. Information Technology" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalAdminAddUser')">Cancel</button>
+          <button type="submit" class="btn-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Event Registrations & Approvals (for Faculty & Admin) -->
+  <div class="modal-overlay" id="modalEventRegistrations">
+    <div class="modal-box" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="eventRegModalTitle">Review Applicants</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalEventRegistrations')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="eventRegStats"></div>
+        <div id="eventRegApplicantsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" onclick="closeModal('modalEventRegistrations')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: My Event Applications (for Students) -->
+  <div class="modal-overlay" id="modalMyRegistrations">
+    <div class="modal-box" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title">My Event Applications &amp; Status</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalMyRegistrations')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="myRegistrationsList" style="display: flex; flex-direction: column; gap: 12px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalMyRegistrations')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notification -->
+  <div id="toastNotice" class="toast-notice">Notice message</div>
+
+  <!-- ==========================================================================
+       Footer (Matching Screenshot 2 exact text)
+       ========================================================================== -->
+  <footer class="footer">
+    <div>Campus Connect Template - Designed by Assistant Prof. Vishesh Panghal for SE Lab</div>
+    <div style="margin-top: 10px;">
+      <button class="btn-reset-demo" onclick="handleResetDemoData()" title="Restore default students, faculty, events & clubs">
+        🔄 Reset Demo Data
+      </button>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

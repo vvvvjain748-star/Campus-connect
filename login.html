@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Connect - Sign In</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f3f4f6;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: #ffffff;
+      border: 1px solid var(--border-darker);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      padding: 40px 36px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      text-align: left;
+    }
+
+    .auth-brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .auth-brand h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .auth-brand p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-row label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .form-row input, .form-row select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border-darker);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-row input:focus, .form-row select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .auth-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-top: -2px;
+    }
+
+    .remember-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      color: var(--primary);
+      font-weight: 500;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .btn-auth-submit {
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: var(--transition);
+    }
+
+    .btn-auth-submit:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .auth-toggle-link {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    .auth-toggle-link a {
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-toggle-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Demo Quick Logins */
+    .quick-login-box {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border-darker);
+    }
+
+    .quick-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-light);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .demo-chips {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .demo-chip {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border-darker);
+      background: var(--bg-page);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .demo-chip:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .auth-alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      display: none;
+      margin-bottom: 14px;
+    }
+
+    .auth-alert.error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+    }
+
+    .auth-alert.success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <div class="auth-brand">
+      <h1>Campus Connect</h1>
+      <p id="authSubtitle">Welcome back! Please login to your account.</p>
+    </div>
+
+    <div id="authAlert" class="auth-alert"></div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="auth-form" onsubmit="handleLoginSubmit(event)">
+      <div class="form-row">
+        <label for="loginEmail">Email Address</label>
+        <input type="email" id="loginEmail" placeholder="student@campus.edu" required value="student@campus.edu">
+      </div>
+
+      <div class="form-row">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••••" required value="password123">
+      </div>
+
+      <div class="auth-meta-row">
+        <label class="remember-check">
+          <input type="checkbox" id="rememberMe" checked>
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="forgot-link" onclick="handleForgotPassword(event)">Forgot Password?</a>
+      </div>
+
+      <button type="submit" class="btn-auth-submit">Sign In</button>
+    </form>
+
+    <!-- Sign Up Form (hidden by default) -->
+    <form id="signupForm" class="auth-form" style="display: none;" onsubmit="handleSignupSubmit(event)">
+      <div class="form-row">
+        <label for="signupName">Full Name</label>
+        <input type="text" id="signupName" placeholder="e.g. Rachel Green" required>
+      </div>
+
+      <div class="form-row">
+        <label for="signupEmail">College Email</label>
+        <input type="email" id="signupEmail" placeholder="e.g. rachel@campus.edu" required>
+      </div>
+
+      <div class="form-row">
+        <label for="signupRole">Campus Role</label>
+        <select id="signupRole" required>
+          <option value="student">Student</option>
+          <option value="faculty">Teacher / Faculty</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="signupDept">Department</label>
+        <input type="text" id="signupDept" placeholder="e.g. Computer Science & Engineering" required>
+      </div>
+
+      <div class="form-row">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="At least 6 characters" minlength="6" required>
+      </div>
+
+      <button type="submit" class="btn-auth-submit">Create Account</button>
+    </form>
+
+    <!-- Bottom Switch Link -->
+    <div class="auth-toggle-link">
+      <span id="toggleQuestion">Don't have an account?</span>
+      <a id="toggleBtn" onclick="toggleAuthMode()">Sign up here</a>
+    </div>
+
+    <!-- Demo Quick Login Chips -->
+    <div class="quick-login-box">
+      <div class="quick-title">1-Click Test Accounts (SE Lab Demo)</div>
+      <div class="demo-chips">
+        <button type="button" class="demo-chip" onclick="quickFill('student')">👨‍🎓 Student (Alex)</button>
+        <button type="button" class="demo-chip" onclick="quickFill('faculty')">👩‍🏫 Teacher (Dr. Meera)</button>
+        <button type="button" class="demo-chip" onclick="quickFill('admin')">⚙️ Admin (Campus IT)</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 24px; font-size: 0.8rem; color: #94a3b8; text-align: center;">
+    Campus Connect Template - Designed by Assistant Prof. Vishesh Panghal for SE Lab
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    let isSignupMode = false;
+
+    function toggleAuthMode() {
+      isSignupMode = !isSignupMode;
+      const loginForm = document.getElementById("loginForm");
+      const signupForm = document.getElementById("signupForm");
+      const subtitle = document.getElementById("authSubtitle");
+      const question = document.getElementById("toggleQuestion");
+      const btn = document.getElementById("toggleBtn");
+      const alertBox = document.getElementById("authAlert");
+      alertBox.style.display = "none";
+
+      if (isSignupMode) {
+        loginForm.style.display = "none";
+        signupForm.style.display = "flex";
+        subtitle.textContent = "Join Campus Connect to connect with your college.";
+        question.textContent = "Already have an account?";
+        btn.textContent = "Sign in here";
+      } else {
+        loginForm.style.display = "flex";
+        signupForm.style.display = "none";
+        subtitle.textContent = "Welcome back! Please login to your account.";
+        question.textContent = "Don't have an account?";
+        btn.textContent = "Sign up here";
+      }
+    }
+
+    function quickFill(role) {
+      if (isSignupMode) toggleAuthMode();
+      
+      const emailInput = document.getElementById("loginEmail");
+      const passInput = document.getElementById("loginPassword");
+      passInput.value = "password123";
+
+      if (role === 'student') {
+        emailInput.value = "student@campus.edu";
+      } else if (role === 'faculty') {
+        emailInput.value = "faculty@campus.edu";
+      } else if (role === 'admin') {
+        emailInput.value = "admin@campus.edu";
+      }
+
+      // Automatically sign in
+      handleLoginSubmit(new Event('submit'));
+    }
+
+    function showAlert(msg, isError = true) {
+      const alertBox = document.getElementById("authAlert");
+      alertBox.textContent = msg;
+      alertBox.className = "auth-alert " + (isError ? "error" : "success");
+      alertBox.style.display = "block";
+    }
+
+    function handleLoginSubmit(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+      const pass = document.getElementById("loginPassword").value;
+
+      const users = JSON.parse(localStorage.getItem("cc_users") || "[]");
+      const user = users.find(u => u.email.toLowerCase() === email);
+
+      if (!user) {
+        showAlert("User with this email not found. Try one of the test accounts.");
+        return;
+      }
+
+      if (user.password !== pass) {
+        showAlert("Invalid password. Default demo password is password123");
+        return;
+      }
+
+      // Save session
+      localStorage.removeItem("cc_logged_out");
+      localStorage.setItem("cc_current_user_id", user.id);
+      showAlert("Login successful! Redirecting to campus...", false);
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 500);
+    }
+
+    function handleSignupSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+      const role = document.getElementById("signupRole").value;
+      const dept = document.getElementById("signupDept").value.trim();
+      const pass = document.getElementById("signupPassword").value;
+
+      const users = JSON.parse(localStorage.getItem("cc_users") || "[]");
+      if (users.some(u => u.email.toLowerCase() === email)) {
+        showAlert("An account with this email already exists.");
+        return;
+      }
+
+      const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase() || "CC";
+      const newUser = {
+        id: "usr_" + Date.now(),
+        name: name,
+        email: email,
+        password: pass,
+        role: role,
+        department: dept,
+        year: role === "faculty" ? "Faculty Advisor" : "1st Year",
+        avatar: initials,
+        avatarBg: role === "faculty" ? "#10b981" : "#4f46e5",
+        connectionsCount: 1,
+        postsCount: 0,
+        facultyAdvisor: role === "faculty" ? "Department Head" : "Dr. Meera Kapoor",
+        bio: `New ${role} at ${dept}. Excited to be part of Campus Connect!`,
+        skills: ["Communication", "Teamwork"],
+        github: "",
+        linkedin: "",
+        rollNo: role === "faculty" ? "FAC-" + Math.floor(100 + Math.random()*900) : "STU-" + Math.floor(1000 + Math.random()*9000),
+        status: "Active"
+      };
+
+      users.push(newUser);
+      localStorage.setItem("cc_users", JSON.stringify(users));
+      localStorage.removeItem("cc_logged_out");
+      localStorage.setItem("cc_current_user_id", newUser.id);
+
+      showAlert("Account created successfully! Redirecting...", false);
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 700);
+    }
+
+    function handleForgotPassword(e) {
+      e.preventDefault();
+      alert("Password reset demo link sent! For testing, all mock accounts use password: password123");
+    }
+  </script>
+</body>
+</html>
